@@ -3,10 +3,8 @@ use std::io::{ BufRead, BufReader };
 use std::vec::Vec;
 
 fn main() {
-    let reader = BufReader::new(
-        File::open("./data/input.txt".to_string()).unwrap()
-    );
-    let lines = reader.lines();
+    let file = File::open("./data/input.txt".to_string()).unwrap();
+    let lines = BufReader::new(file).lines();
 
     let mut total = 0;
     let mut totals = Vec::new();
