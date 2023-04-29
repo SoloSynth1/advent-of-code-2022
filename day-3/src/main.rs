@@ -1,45 +1,58 @@
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Lines};
 use std::path::Path;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 fn main() {
     // File hosts must exist in current path before this produces output
     if let Ok(lines) = read_lines("./data/input.txt") {
-        // Consumes the iterator, returns an (Optional) String
-        println!("{}", get_priorities_sum(lines));
+        let mut part1_count = 0;
+        let mut part2_count = 0;
+        let mut part2_buf: Vec<String> = Vec::new();
+
+        for (idx, line) in lines.enumerate() {
+            // part 1
+            let Ok(ip) = line else { todo!() };
+            let (left, right) = ip.split_at(ip.chars().count() / 2);
+            let mutual_char = get_mutual_characters(left, right);
+            assert_eq!(mutual_char.len(), 1);
+            part1_count += get_priority(mutual_char.chars().nth(0).unwrap());
+
+            // part 2
+            part2_buf.push(ip);
+            if idx % 3 == 2 {
+                // calculate mutual chars
+                let mutual_char = get_mutual_characters(&get_mutual_characters(&part2_buf[0], &part2_buf[1]), &part2_buf[2]);
+                assert_eq!(mutual_char.len(), 1);
+                part2_count += get_priority(mutual_char.chars().nth(0).unwrap());
+                // clear buffer
+                part2_buf = Vec::new();
+            }
+        }
+        println!("part 1: {}", part1_count);
+        println!("part 2: {}", part2_count);
     }
 }
 
-fn get_priorities_sum(lines: Lines<BufReader<File>>) -> i32 {
-    let mut count = 0;
-    for line in lines {
-        let Ok(ip) = line else { todo!() };
-        let mutual_length = ip.chars().count() / 2;
-        let (left, right) = ip.split_at(mutual_length);
-        let mut char_dict: HashMap<char, i8> = HashMap::new();
-        for idx in 0..mutual_length {
-            char_dict.insert(left.chars().nth(idx).unwrap(), 1);
-        }
-        for idx in 0..mutual_length {
-            let sel_char = right.chars().nth(idx).unwrap();
-            if char_dict.contains_key(&sel_char) {
-                count += get_priority(sel_char);
-                break;
-            }
-        }
-
+fn get_mutual_characters(a: &str, b: &str) -> String {
+    let mut results: Vec<char> = Vec::new();
+    let mut a_chars = HashSet::new();
+    for idx in 0..a.len() {
+        a_chars.insert(a.chars().nth(idx).unwrap());
     }
-    count
+    for idx in 0..b.len() {
+        let b_char = b.chars().nth(idx).unwrap();
+        if a_chars.contains(&b_char) && !results.contains(&b_char) {
+            results.push(b_char);
+        }
+    }
+    let result: String = results.iter().collect();
+    result
 }
 
 fn get_priority(c: char) -> i32 {
     let mut char_val = c as i32;
-    if c.is_lowercase() {
-        char_val -= 96
-    } else {
-        char_val -= 38
-    }
+    char_val += if c.is_lowercase() {-96} else {-38};   // convert ascii values to AoC rules
     char_val
 }
 
