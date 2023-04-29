@@ -15,9 +15,8 @@ fn get_priorities_sum(lines: Lines<BufReader<File>>) -> i32 {
     let mut count = 0;
     for line in lines {
         let Ok(ip) = line else { todo!() };
-        let string_length = ip.chars().count();
-        let mutual_length = string_length / 2;
-        let (left, right) = ip.split_at(string_length / 2);
+        let mutual_length = ip.chars().count() / 2;
+        let (left, right) = ip.split_at(mutual_length);
         let mut char_dict: HashMap<char, i8> = HashMap::new();
         for idx in 0..mutual_length {
             char_dict.insert(left.chars().nth(idx).unwrap(), 1);
