@@ -12,7 +12,7 @@ fn main() {
 
         for (idx, line) in lines.enumerate() {
             // part 1
-            let Ok(ip) = line else { todo!() };
+            let Ok(ip) = line else { panic!("failed to read line!") };
             let (left, right) = ip.split_at(ip.chars().count() / 2);
             let mutual_char = get_mutual_characters(left, right);
             assert_eq!(mutual_char.len(), 1);
@@ -58,8 +58,8 @@ fn get_priority(c: char) -> i32 {
 
 // The output is wrapped in a Result to allow matching on errors
 // Returns an Iterator to the Reader of the lines of the file.
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+fn read_lines<P>(filename: P) -> io::Result<Lines<BufReader<File>>>
 where P: AsRef<Path>, {
     let file = File::open(filename)?;
-    Ok(io::BufReader::with_capacity(1024, file).lines())
+    Ok(BufReader::with_capacity(1024, file).lines())
 }
